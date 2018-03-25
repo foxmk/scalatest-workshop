@@ -1,70 +1,239 @@
-sscalatest
+## scalatest
 
-note: Hi, my name is Artem and today I want to talk about scalatest
-
----
-
-note: Disclaimer: everything I will be talking about is in the documentation
+note: Hi, my name is Artem and today I want to talk about scalatest.
 
 ---
 
-note: I assume most of you already know how to use scalatest, but just in case you don’t here’s quickstart
+[http://www.scalatest.org/user_guide](http://www.scalatest.org/user_guide)
+
+note: Disclaimer: everything I will be talking about is in the documentation.
 
 ---
 
-note: add dependency in your build sbt 
+## Quick start
+
+note: I assume most of you already know how to use scalatest, but just in case you don’t here’s quickstart.
 
 ---
 
-note: create a test class extending one of test suites
+```
+// build.sbt
+
+libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.5" % "test" 
+```
+
+note: Add dependency in your build sbt.
 
 ---
 
-note: scalatest provides different test styles which affect how you write and describe your tests
+```
+// UserSpec.scala
+class UserSpec extends FlatSpec {
+  // Your tests
+}
+
+// UserSpec.scala
+class UserSpec extends FunSuite {
+  // Your tests
+}
+```
+
+notes: Create a test class extending one of test suites. scalatest provides different test styles which affect how you write and describe your tests. 
 
 ---
 
-note: I will use flatspec, which is defacto default and fun suite which is the simplest
+```
+// UserSpec.scala
+class UserSpec extends FlatSpec {
+
+  "A User" should "be of age 20" in {
+    // your test code
+  
+  }
+
+}
+```
+
+note: I will use `FlatSpec`, which is defacto default 
 
 ---
 
-note: then you write some tests
+```
+// UserSpec.scala
+class UserSpec extends FunSuite {
+  
+  test("User should be of age 20") {
+    // your test code
+  
+  }
+  
+}
+```
+
+note: and `FunSuite` which is the simplest one.
 
 ---
 
-note: and run them with abt test, simple enough 
+```
+// UserSpec.scala
+class UserSpec extends FlatSpec {
+  
+  "A User" should "be of age 20" in {
+    val user = User("John")
+    assert(user.age == 20) 
+  }
+  
+}
+```
+
+note: Then you write some tests
 
 ---
 
-note:. but what if you need to have custom setup and teardown for your tests? 
+```
+$ sbt test
+...
+[info] UserSpec:
+[info] A User
+[info] - should be of age 20
+[info] Run completed in 100 milliseconds.
+[info] Total number of tests run: 1
+[info] All tests passed.
+...
+```
+
+note: and run them with sbt test, simple enough.
 
 ---
 
-note:. Of course you can mix in predefined trait befor and after each and before and after all
+Custom setup and/or teardown?
+
+note: But what if you need to have custom setup and teardown for your tests? 
 
 ---
 
-note:. and define your setup and test down code
+```
+class UserSpec extends FlatSpec with BeforeAndAfterAll {
+
+  // your test code
+  
+  
+  
+  
+  
+}
+```
+
+note: Of course you can mix in predefined trait befor and after each and before and after all
 
 ---
 
-note:. you can override predefined methods or use them as is. sometimes you want custom setup for each test
+```
+class UserSpec extends FlatSpec with BeforeAndAfterAll {
+  
+  beforeEach {
+  
+    // Do that before each test
+    
+  }
+  
+}
+```
+
+note: and define your setup and test down code. You can use predefined methods
 
 ---
 
-note:. For that of course you can use loan pattern. This is a function which accepts some fixture an block of code which uses it. creates the fixture, rubs the code, saves result, performs tear down and returns the result back to caller
+```
+class UserSpec extends FlatSpec with BeforeAndAfterAll {
+  
+  override def beforeEach(): Unit = {
+  
+    // Do that before each test
+    
+  }
+  
+}
+```
+
+note: ...or override them.
 
 ---
 
-note:. If you have more elements in fixture loan pattern becomes tedious 
+```
+class UserSpec extends FlatSpec with BeforeAndAfterAll {
+  
+  override def beforeEach(): Unit = {
+    super.beforeEach() // <-- Do not forget this!
+    // Do that before each test
+    
+  }
+  
+}
+```
+
+note: Be careful with inheritance. Sometimes you want custom setup for each test.
 
 ---
 
-note:. Fixture trait to the rescue. here we create a trait or abstract class which body is the test body. body will be executed upon construction of an object
+```
+def withDatabase[A](db: => DB)(code: DB => A): A = {
+  // Create fixture
+  val db = new DB()
+  val res = code(db)
+  db.close()
+  res
+}
+```
+
+note:. For that of course you can use loan pattern. This is a function which accepts some fixture factory
+and a block of code which uses it. Creates the fixture, runs the code, saves result, performs tear down and returns the result back to caller.
 
 ---
 
-note:. you simply erap tour test code in this trait et voila
+```
+def withAllTheStuff[ResultT](a: => A)(b: => B)(c: => C)(code: (A, B, C) => ResultT): ResultT = {
+  // Create all the stuff
+  val a = new A()
+  val b = new B()
+  val c = new C()
+  val res = code(a, b, c)
+  a.close()
+  a.destroy()
+  a.eliminate()
+  res
+}
+```
+
+note:. If you have more elements in fixture loan pattern becomes tedious.
+
+---
+
+```
+trait TestFixture {
+    
+  // Initialize all the stuff
+  val a = new A()
+  val b = new B()
+  val c = new C()
+    
+}
+```
+
+note:. Fixture trait to the rescue. Here we create a trait or abstract class which body is the test body.
+Body will be executed upon construction of an object.
+
+---
+
+```
+"A User" should "use all the resources" in new TestFixture {
+  a.call()
+  b.ask()
+  c.giveMeSomething()
+}
+```
+
+note: You simply wrap tour test code in this trait et voila.
 
 ---
 
