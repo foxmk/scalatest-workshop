@@ -1,4 +1,7 @@
-# `scalatest`
+## `scalatest`
+Artem Artemyev
+
+[github.com/foxmk](http://github.com/foxmk)
 
 note: Hi, my name is Artem and today I want to talk about scalatest.
 
@@ -17,7 +20,7 @@ note: I assume most of you already know how to use scalatest, but just in case y
 
 ---
 
-```
+```scala
 // build.sbt
 
 libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.5" % "test" 
@@ -27,7 +30,7 @@ note: Add dependency in your build sbt.
 
 ---
 
-```
+```scala
 // UserSpec.scala
 class UserSpec extends FlatSpec {
   // Your tests
@@ -43,7 +46,7 @@ notes: Create a test class extending one of test suites. scalatest provides diff
 
 ---
 
-```
+```scala
 // UserSpec.scala
 class UserSpec extends FlatSpec {
 
@@ -59,7 +62,7 @@ note: I will use `FlatSpec`, which is defacto default
 
 ---
 
-```
+```scala
 // UserSpec.scala
 class UserSpec extends FunSuite {
   
@@ -75,7 +78,7 @@ note: and `FunSuite` which is the simplest one.
 
 ---
 
-```
+```scala
 // UserSpec.scala
 class UserSpec extends FlatSpec {
   
@@ -91,7 +94,7 @@ note: Then you write some tests
 
 ---
 
-```
+```bash
 $ sbt test
 ...
 [info] UserSpec:
@@ -113,7 +116,7 @@ note: But what if you need to have custom setup and teardown for your tests?
 
 ---
 
-```
+```scala
 class UserSpec extends FlatSpec with BeforeAndAfterAll {
 
   // your test code
@@ -129,7 +132,7 @@ note: Of course you can mix in predefined trait befor and after each and before 
 
 ---
 
-```
+```scala
 class UserSpec extends FlatSpec with BeforeAndAfterAll {
   
   beforeEach {
@@ -145,7 +148,7 @@ note: and define your setup and test down code. You can use predefined methods
 
 ---
 
-```
+```scala
 class UserSpec extends FlatSpec with BeforeAndAfterAll {
   
   override def beforeEach(): Unit = {
@@ -161,7 +164,7 @@ note: ...or override them.
 
 ---
 
-```
+```scala
 class UserSpec extends FlatSpec with BeforeAndAfterAll {
   
   override def beforeEach(): Unit = {
@@ -177,7 +180,7 @@ note: Be careful with inheritance. Sometimes you want custom setup for each test
 
 ---
 
-```
+```scala
 def withDatabase[A](db: => DB)(code: DB => A): A = {
   // Create fixture
   val db = new DB()
@@ -194,7 +197,22 @@ and a block of code which uses it. Creates the fixture, runs the code, saves res
 
 ---
 
+```scala
+class UserSpec extends FlatSpec {
+
+  // fixture code
+  
+  "A User" should "be cool" in withDatabase { db =>
+    val user = db.getUser()
+    user shouldBe cool
+  }
+
+}
 ```
+
+---
+
+```scala
 def withAllTheStuff[ResultT](a: => A)(b: => B)(c: => C)(code: (A, B, C) => ResultT): ResultT = {
   // Create all the stuff
   val a = new A()
@@ -214,7 +232,7 @@ note:. If you have more elements in fixture loan pattern becomes tedious.
 
 ---
 
-```
+```scala
 trait TestFixture {
     
   // Initialize all the stuff
@@ -230,7 +248,7 @@ Body will be executed upon construction of an object.
 
 ---
 
-```
+```scala
 "A User" should "use all the resources" in new TestFixture {
   a.call()
   b.ask()
@@ -242,28 +260,13 @@ note: You simply wrap tour test code in this trait et voila. there is one proble
 
 ---
 
-```
-class UserSpec extends fixture.FlatSpec {
-
-
-  // Your test code
-    
-
-}
-```
-
-note:. well, scalatest offers its own way to create fixtures. you need to extend your desired test style from fixtures package
-
----
-
-```
+```scala
 class UserSpec extends fixture.FlatSpec {
 
   case class TestFixture(a: A, b: B)
   
   def withFixture(test: OneArgTest) = {
     val f = TestFixture(new A(), new B())
-    
     try {
       withFixture(test.toNoArgTest(f))
     } finally {
@@ -272,15 +275,16 @@ class UserSpec extends fixture.FlatSpec {
       c.eliminate()
     }
   }
-
 }
 ```
 
-note: and define fixture class and construction function. kinda like built in loan pattern on steroids. Here we create case class will require fixture elements and override with fixture method
+note: Well, scalatest offers its own way to create fixtures. You need to extend your desired test style from fixtures package and define fixture class and construction function. kinda like built in loan pattern on steroids. Here we create case class will require fixture elements and override with fixture method
 
 ---
 
 > Mix in a before-and-after trait when you want an aborted suite, not a failed test, if the fixture code fails.
+>
+> --- [Scalatest documentation](http://www.scalatest.org/user_guide/sharing_fixtures)
 
 note: fixture params cannot cancel test, only fail
 
@@ -293,7 +297,8 @@ note:. now let’s take a look at our assertions
 ---
 
 Assertion functions from `Assertions` trait:
-```
+
+```scala
 assert(2 + 2 == 5)
 assertResult(5) { 2 + 2 }
 assertThrows { "I shall not throw" }
@@ -315,6 +320,10 @@ note: There are a bunch of assertions in Assertions trait
 Clues:
 ```
 assert(2 + 2 == 5, "2 + 2 still not equal 5")
+
+withClue("2 + 2 still not equal 5") {
+  assert(2 + 2 == 5)
+}
 ```
 
 See also:
@@ -322,13 +331,15 @@ See also:
 
 ---
 
+```scala
 import org.scalatest.Matchers._
+```
 
 note:. fortunately scalatest provide an extensive dsl for mathibg stuff
 
 ---
 
-```
+```scala
 true shouldBe true
 "Hello, World!" should be("Hello, World!")
 Math.PI shouldEqual 3 +- 0.2
@@ -338,7 +349,7 @@ note:. you can make assertions about simple values
 
 ---
 
-```
+```scala
 "foo" shouldBe a [String]
 ```
 
@@ -346,7 +357,7 @@ note:. classes
 
 ---
 
-```
+```scala
 List("a", "collection", "of", "strings") should not be empty
 List("a", "collection", "of", "strings") should have length 4
 List("a", "collection", "of", "strings") should contain ("of")
@@ -356,7 +367,7 @@ note:. collections
 
 ---
 
-```
+```scala
 // From documentation
 List(1, 2, 2, 3, 3, 3) should contain theSameElementsAs Vector(3, 2, 3, 1, 2, 3)
 List(1, 2, 3) should contain atLeastOneOf (2, 3, 4)
@@ -367,7 +378,7 @@ note:. more collections
 
 ---
 
-```
+```scala
 val pearlInAShell = DeeplyNestedClass(Foo(Bar(Baz(Quux("eat me!")))))
 pearlInAShell should matchPattern { case DeeplyNestedClass(Foo(Bar(Baz(Quux(_))))) => }
 ```
@@ -376,7 +387,7 @@ note: what if we don’t care about concrete value inside? we can use match patt
 
 ---
 
-```
+```scala
 inside(pearlInAShell) {
   case DeeplyNestedClass(Foo(Bar(Baz(Quux(pearl))))) => pearl.length shouldBe 7
 }
@@ -397,17 +408,19 @@ note:. there are a lot of marchers , you can take a look at documentation to hav
 
 ---
 
-```
+```scala
 case class Address(street: String, house: String)
 
-case class User(name: String, address: Address, isCool: Boolean)
+case class User(name: String, 
+                address: Address, 
+                isCool: Boolean)
 ```
 
 note: I want to show how you can crate tour own marchers. let’s have a user
 
 ---
 
-```
+```scala
 def liveIn(street: String): Matcher[User] = new Matcher[User] {
   override def apply(user: User): MatchResult = {
     MatchResult(user.address.street == street,
@@ -422,7 +435,7 @@ note: Say we want to be sure that user lives in certain street. We create a matc
 
 ---
 
-```
+```scala
 test("User should live in Winterfell") {
   val user = User("Jon Snow", Address("Winterfell", "15"))
   user should liveIn("Winterfell")
@@ -433,7 +446,7 @@ note: Now we can use it
 
 ---
 
-```
+```scala
 val cool: BeMatcher[User] = { user =>
   MatchResult(
     user.isCool, 
