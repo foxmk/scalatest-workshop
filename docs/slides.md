@@ -3,20 +3,14 @@ Artem Artemyev
 
 [github.com/foxmk](http://github.com/foxmk)
 
-note: Hi, my name is Artem and today I want to talk about scalatest.
-
 ---
 
 Scalatest documentation:
 [http://www.scalatest.org/user_guide](http://www.scalatest.org/user_guide)
 
-note: Disclaimer: everything I will be talking about is in the documentation.
-
 ---
 
 ## Quick start
-
-note: I assume most of you already know how to use scalatest, but just in case you don’t here’s quickstart.
 
 ---
 
@@ -25,8 +19,6 @@ note: I assume most of you already know how to use scalatest, but just in case y
 
 libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.5" % "test" 
 ```
-
-note: Add dependency in your build sbt.
 
 ---
 
@@ -42,8 +34,6 @@ class UserSpec extends FunSuite {
 }
 ```
 
-notes: Create a test class extending one of test suites. scalatest provides different test styles which affect how you write and describe your tests. 
-
 ---
 
 ```scala
@@ -56,9 +46,7 @@ class UserSpec extends FlatSpec {
   }
 
 }
-```
-
-note: I will use `FlatSpec`, which is defacto default 
+``` 
 
 ---
 
@@ -74,8 +62,6 @@ class UserSpec extends FunSuite {
 }
 ```
 
-note: and `FunSuite` which is the simplest one.
-
 ---
 
 ```scala
@@ -89,8 +75,6 @@ class UserSpec extends FlatSpec {
   
 }
 ```
-
-note: Then you write some tests
 
 ---
 
@@ -106,13 +90,9 @@ $ sbt test
 ...
 ```
 
-note: and run them with sbt test, simple enough.
-
 ---
 
-## Fixtures
-
-note: But what if you need to have custom setup and teardown for your tests? 
+## Fixtures 
 
 ---
 
@@ -128,8 +108,6 @@ class UserSpec extends FlatSpec with BeforeAndAfterAll {
 }
 ```
 
-note: Of course you can mix in predefined trait befor and after each and before and after all
-
 ---
 
 ```scala
@@ -144,8 +122,6 @@ class UserSpec extends FlatSpec with BeforeAndAfterAll {
 }
 ```
 
-note: and define your setup and test down code. You can use predefined methods
-
 ---
 
 ```scala
@@ -159,8 +135,6 @@ class UserSpec extends FlatSpec with BeforeAndAfterAll {
   
 }
 ```
-
-note: ...or override them.
 
 ---
 
@@ -176,8 +150,6 @@ class UserSpec extends FlatSpec with BeforeAndAfterAll {
 }
 ```
 
-note: Be careful with inheritance. Sometimes you want custom setup for each test.
-
 ---
 
 ```scala
@@ -191,9 +163,6 @@ def withDatabase[A](db: => DB)(code: DB => A): A = {
   }
 }
 ```
-
-note:. For that of course you can use loan pattern. This is a function which accepts some fixture factory
-and a block of code which uses it. Creates the fixture, runs the code, saves result, performs tear down and returns the result back to caller.
 
 ---
 
@@ -228,8 +197,6 @@ def withAllTheStuff[ResultT](a: => A)(b: => B)(c: => C)(code: (A, B, C) => Resul
 }
 ```
 
-note:. If you have more elements in fixture loan pattern becomes tedious.
-
 ---
 
 ```scala
@@ -243,9 +210,6 @@ trait TestFixture {
 }
 ```
 
-note:. Fixture trait to the rescue. Here we create a trait or abstract class which body is the test body.
-Body will be executed upon construction of an object.
-
 ---
 
 ```scala
@@ -255,8 +219,6 @@ Body will be executed upon construction of an object.
   c.giveMeSomething()
 }
 ```
-
-note: You simply wrap tour test code in this trait et voila. there is one problem though, it is hard to define teardown in this case
 
 ---
 
@@ -278,21 +240,15 @@ class UserSpec extends fixture.FlatSpec {
 }
 ```
 
-note: Well, scalatest offers its own way to create fixtures. You need to extend your desired test style from fixtures package and define fixture class and construction function. kinda like built in loan pattern on steroids. Here we create case class will require fixture elements and override with fixture method
-
 ---
 
 > Mix in a before-and-after trait when you want an aborted suite, not a failed test, if the fixture code fails.
 >
-> --- [Scalatest documentation](http://www.scalatest.org/user_guide/sharing_fixtures)
-
-note: fixture params cannot cancel test, only fail
+> — [Scalatest documentation](http://www.scalatest.org/user_guide/sharing_fixtures)
 
 ---
 
 ## Assertions and Matchers
-
-note:. now let’s take a look at our assertions
 
 ---
 
@@ -313,15 +269,14 @@ cancel
 succeed
 ```
 
-note: There are a bunch of assertions in Assertions trait
-
 ---
 
 ```scala
-Predef.assert(2 + 2 == 5)
-
 val left = 2 + 2
 val right = 5
+
+Predef.assert(left == right)
+
 Assertions.assert(left == right)
 ```
 
@@ -368,8 +323,6 @@ See also:
 import org.scalatest.Matchers._
 ```
 
-note:. fortunately scalatest provide an extensive dsl for mathibg stuff
-
 ---
 
 ```scala
@@ -378,15 +331,11 @@ true shouldBe true
 Math.PI shouldEqual 3 +- 0.2
 ```
 
-note:. you can make assertions about simple values
-
 ---
 
 ```scala
 "foo" shouldBe a [String]
 ```
-
-note:. classes
 
 ---
 
@@ -395,8 +344,6 @@ List("a", "collection", "of", "strings") should not be empty
 List("a", "collection", "of", "strings") should have length 4
 List("a", "collection", "of", "strings") should contain ("of")
 ```
-
-note:. collections
 
 ---
 
@@ -407,16 +354,12 @@ List(1, 2, 3) should contain atLeastOneOf (2, 3, 4)
 List(0, 1, 2, 2, 99, 3, 3, 3, 5) should contain inOrder (1, 2, 3)
 ```
 
-note:. more collections
-
 ---
 
 ```scala
 val pearlInAShell = DeeplyNestedClass(Foo(Bar(Baz(Quux("eat me!")))))
 pearlInAShell should matchPattern { case DeeplyNestedClass(Foo(Bar(Baz(Quux(_))))) => }
 ```
-
-note: what if we don’t care about concrete value inside? we can use match pattern
 
 ---
 
@@ -426,14 +369,10 @@ inside(pearlInAShell) {
 }
 ```
 
-note: if we do care, we can mix in inside trait which provides inside method. we can use it to traverse deeply nested class to make sure it has required properties
-
 ---
 
 A lot more matchers:
-[http://www.scalatest.org/user_guide/using_matchers](http://www.scalatest.org/user_guide/using_matchers)
-
-note:. there are a lot of marchers , you can take a look at documentation to have some impression of what you can achieve 
+[http://www.scalatest.org/user_guide/using_matchers](http://www.scalatest.org/user_guide/using_matchers) 
 
 ---
 
@@ -449,8 +388,6 @@ case class User(name: String,
                 isCool: Boolean)
 ```
 
-note: I want to show how you can crate tour own marchers. let’s have a user
-
 ---
 
 ```scala
@@ -464,8 +401,6 @@ def liveIn(street: String): Matcher[User] = new Matcher[User] {
 }
 ```
 
-note: Say we want to be sure that user lives in certain street. We create a matched which accepts user on lhs and street name on rhs. It checks the street dnd returns pretty message.
-
 ---
 
 ```scala
@@ -474,8 +409,6 @@ test("User should live in Winterfell") {
   user should liveIn("Winterfell")
 }
 ```
-
-note: Now we can use it
 
 ---
 
@@ -492,8 +425,7 @@ test("User should be cool") {
   user shouldBe cool
 }
 ```
-  
-note: There are also be marchers and have marchers. You can define them to make your assertion more like human language
+ 
 
 ---
 
@@ -512,9 +444,9 @@ class InspectorsExample extends FunSuite with Inspectors {
 ```scala
 class InspectorsExample extends FunSuite with Inspectors {
   
-  test("collection should have at least 2 odd numbers") {
-    forAtLeast(2, Seq(1, 2, 3, 4, 5)) { n =>
-      n shouldBe odd
+  test("collection should have at least 2 even numbers") {
+    forAtLeast(2, Seq(1, 2, 3, 4, 5, 6)) { n =>
+      n shouldBe even
     }
   }
 
@@ -534,15 +466,11 @@ class InspectorsExample extends FunSuite with Inspectors {
 
 ## Property-based testing
 
-note: of course this is all useful if we have some test cases. but who likes to think of test cases, let’s have machine do it for us
-
 ---
 
 ```scala
 libraryDependencies += "org.scalacheck" %% "scalacheck" % "1.13.4" % "test"
 ```
-
-note: ???
 
 ---
 
@@ -563,9 +491,9 @@ class IDoNotKnowMath extends FlatSpec with PropertyChecks {
 ```scala
 class IDoNotKnowMath extends FlatSpec with PropertyChecks {
 
-  "Square of any number" should "be odd" in {
+  "Square of any number" should "be even" in {
     forAll("n") { (n: Int) =>
-      (n * n) % 2 shouldBe odd
+      (n * n) % 2 shouldBe even
     }
   }
 
@@ -583,14 +511,12 @@ TestFailedException was thrown during property evaluation.
   )
 ```
 
-note: shrinking
-
 ---
 
 ```scala
-val odd = new BeMatcher[Int] {
+val even = new BeMatcher[Int] {
   override def apply(left: Int): MatchResult = {
-    MatchResult(left % 2 == 0, s"$left is even", s"$left is odd")
+    MatchResult(left % 2 == 0, s"$left is odd", s"$left is even")
   }
 }
 ```
@@ -644,7 +570,7 @@ val testCases = Table(
 Generator-driven tests:
 
 ```scala
-class Fibbonachi extends FlatSpec with GeneratorDrivenPropertyChecks {
+class IStillDoNotKnowMath extends FlatSpec with GeneratorDrivenPropertyChecks {
   
   // Your tests
   
@@ -654,18 +580,192 @@ class Fibbonachi extends FlatSpec with GeneratorDrivenPropertyChecks {
 ---
 
 ```scala
-val evenInts = for (n <- Gen.choose(-1000, 1000)) yield 2 * n
+import org.scalacheck.Arbitrary._
+
+val squares = arbitrary[Int] map (n => n * n)
 ```
 
 ---
 
 ```scala
-"fib(n)" should "be n-th Fibbonachi number" in {
-  forAll(testCases) { (n, fibN) =>
-    fib(n) shoulbBe fibN
+"Square of any number" should "be even" in {
+  forAll(squares) { square =>
+    square shouldBe even
   }
 }
 ```
 
 ---
 
+`org.scalacheck.Gen[A]` is a Monad:
+- you can use `map`/`flatMap`
+- you can use `for`-comprehension
+- you can compose them any way
+
+---
+
+Some examples:
+
+```scala
+val mondays = Gen.calendar suchThat (_.get(Calendar.DAY_OF_WEEK) == Calendar.MONDAY)
+```
+
+```scala
+val nonOverlappingSeqs = for {
+  a <- Gen.containerOf[Seq, Int](arbitrary[Int])
+  b <- Gen.containerOf[Seq, Int](arbitrary[Int] suchThat (n => !a.contains(n)))
+} yield (a, b)
+```
+
+```scala
+
+```
+
+---
+
+## Creating your own DSL
+
+---
+
+Scala syntactic sugar for method invocation:
+
+```scala
+1 + 1 /*is equivalent to*/ 1.+(1)
+```
+
+```scala
+foo bar /*is equivalent to*/ foo(bar) /*and*/ foo.apply(bar)
+```
+
+---
+
+We can use that!
+
+```scala
+case class Address(city: String)
+
+case class User(name: String, address: Address)
+
+object MyDsl {
+
+  val city = new {
+    def of(user: User): String = user.address.city
+  }
+}
+
+import MyDsl._
+
+val user = User("Jon Snow", Address("Berlin"))
+city of user shouldBe "Berlin"
+```
+
+---
+
+```scala
+// This line suppresses feature warning
+import scala.language.postfixOps
+
+implicit class IntDsl(i: Int) {
+  def squared: Int = i * i 
+}
+
+(2 squared) shouldBe 4 // Mind the parentheses
+```
+
+---
+
+```scala
+// This line suppresses implicit conversions warning
+import scala.language.implicitConversions
+
+class IntDsl(i: Int) {
+  def squared: Int = i * i
+}
+
+implicit def toIntDsl(i: Int) = new IntDsl(i)
+
+(2 squared) shouldBe 4 // Mind the parentheses
+```
+
+---
+
+```scala
+implicit class StringDsl(s: String) {
+  def without(c: String): String = s.replaceAll(c, "") 
+}
+
+"Foo" without "F" shouldBe "oo"
+```
+
+---
+
+## Other goodies
+
+---
+
+`*Values` helpers:
+
+```scala
+import org.scalatest.OptionValues._
+import org.scalatest.TryValues._
+import org.scalatest.EitherValues._
+import org.scalatest.PartialFunctionValues._
+```
+
+---
+
+```scala
+None.value shouldBe "foo" // Throws TestFailedException with nice message 
+```
+
+equivalent to:
+
+```scala
+val i: Option[Int] = None
+i.isDefined shouldBe true
+i.get shouldBe 1
+```
+
+---
+
+```scala
+val either: Either[String, Int] = Left("Some error")
+either.right.value shouldBe 1
+```
+
+```scala
+val result: Try[String] = Failure(new Exception)
+result.success.value shouldBe "Hello!"
+```
+
+---
+
+Private method invocation:
+
+```scala
+class GetToGuts extends FunSuite with PrivateMethodTester {
+
+  class Foo {
+    private def getMe(n: Int) = "Hello!" * n
+  }
+
+  val getMe = PrivateMethod[String]('getMe)
+
+  test("Private method should be accessible now") {
+    new Foo() invokePrivate getMe(2) shouldBe "Hello!Hello!"
+  }
+
+}
+```
+
+---
+
+## Lesson
+
+Be brave and explore documentation!
+
+Lots of good stuff there, it's not a Pandora's box!
+
+---
+
+## Thank you!
