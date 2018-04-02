@@ -7,6 +7,7 @@ lazy val root = project
     scalacOptions += "-Ypartial-unification",
     libraryDependencies ++= Seq(
       "org.typelevel" %% "cats-core" % "1.0.1",
-      "org.scalatest" %% "scalatest" % "3.0.4" % Test
+      "org.scalatest" %% "scalatest" % "3.0.4" % Test,
+      "org.scalacheck" %% "scalacheck" % "1.13.4" % Test
     )
   )

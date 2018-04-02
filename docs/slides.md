@@ -94,7 +94,7 @@ note: Then you write some tests
 
 ---
 
-```bash
+```text
 $ sbt test
 ...
 [info] UserSpec:
@@ -317,8 +317,41 @@ note: There are a bunch of assertions in Assertions trait
 
 ---
 
-Clues:
+```scala
+Predef.assert(2 + 2 == 5)
+
+val left = 2 + 2
+val right = 5
+Assertions.assert(left == right)
 ```
+
+---
+
+```text
+assertion failed
+java.lang.AssertionError: assertion failed
+	at scala.Predef$.assert(Predef.scala:204)
+	at com.github.foxmk.scalatestworkshop.TableDrivenTests.$anonfun$new$1(TableDrivenTests.scala:21)
+	at scala.runtime.java8.JFunction0$mcV$sp.apply(JFunction0$mcV$sp.java:12)
+	at org.scalatest.OutcomeOf.outcomeOf(OutcomeOf.scala:85)
+	at org.scalatest.OutcomeOf.outcomeOf$(OutcomeOf.scala:83)
+	at org.scalatest.OutcomeOf$.outcomeOf(OutcomeOf.scala:104)
+```
+
+---
+
+```text
+4 did not equal 5
+ScalaTestFailureLocation: com.github.foxmk.scalatestworkshop.TableDrivenTests at (TableDrivenTests.scala:25)
+Expected :5
+Actual   :4
+```
+
+---
+
+Clues:
+
+```scala
 assert(2 + 2 == 5, "2 + 2 still not equal 5")
 
 withClue("2 + 2 still not equal 5") {
@@ -460,31 +493,179 @@ test("User should be cool") {
 }
 ```
   
-note: There are also be marchers and have marchers. You can define them to make your assertion more like human language 
+note: There are also be marchers and have marchers. You can define them to make your assertion more like human language
 
 ---
 
-note:. of course this is all useful if we have some test cases . but who likes to think of test cases
+Inspectors:
+
+```scala
+class InspectorsExample extends FunSuite with Inspectors {
+
+  // Your tests
+
+}
+```
 
 ---
 
-note:. let’s have machine do it for us
+```scala
+class InspectorsExample extends FunSuite with Inspectors {
+  
+  test("collection should have at least 2 odd numbers") {
+    forAtLeast(2, Seq(1, 2, 3, 4, 5)) { n =>
+      n shouldBe odd
+    }
+  }
+
+}
+```
 
 ---
 
-note:. ....
+- `forAll`
+- `forAtLeast`
+- `forAtMost`
+- `forBetween`
+- `forEvery`
+- `forExactly`
 
 ---
 
-note:. scalatest also provides nice selenium dsl
+## Property-based testing
+
+note: of course this is all useful if we have some test cases. but who likes to think of test cases, let’s have machine do it for us
 
 ---
 
-note:. 
+```scala
+libraryDependencies += "org.scalacheck" %% "scalacheck" % "1.13.4" % "test"
+```
+
+note: ???
 
 ---
 
+```scala
+class IDoNotKnowMath extends FlatSpec with PropertyChecks {
 
+  // Your tests
+
+
+
+
+
+}
+```
+
+---
+
+```scala
+class IDoNotKnowMath extends FlatSpec with PropertyChecks {
+
+  "Square of any number" should "be odd" in {
+    forAll("n") { (n: Int) =>
+      (n * n) % 2 shouldBe odd
+    }
+  }
+
+}
+```
+
+---
+
+```text
+TestFailedException was thrown during property evaluation.
+  Message: 1 is even
+  Location: (TableDrivenTests.scala:19)
+  Occurred when passed generated values (
+    n = -1 // 12 shrinks
+  )
+```
+
+note: shrinking
+
+---
+
+```scala
+val odd = new BeMatcher[Int] {
+  override def apply(left: Int): MatchResult = {
+    MatchResult(left % 2 == 0, s"$left is even", s"$left is odd")
+  }
+}
+```
+
+---
+
+```scala
+trait PropertyChecks 
+  extends TableDrivenPropertyChecks 
+  with GeneratorDrivenPropertyChecks
+```
+
+---
+
+Table-driven tests:
+
+```scala
+class Fibbonachi extends FlatSpec with TableDrivenPropertyChecks {
+  
+  // Your tests
+  
+}
+```
+
+---
+
+```scala
+val testCases = Table(
+  "n" -> "fib(n)",
+  1 -> 1,
+  2 -> 1,
+  3 -> 2,
+  4 -> 3,
+  5 -> 5,
+  6 -> 8
+)
+```
+
+---
+
+```scala
+"fib(n)" should "be n-th Fibbonachi number" in {
+  forAll(testCases) { (n, fibN) =>
+    fib(n) shoulbBe fibN
+  }
+}
+```
+
+---
+
+Generator-driven tests:
+
+```scala
+class Fibbonachi extends FlatSpec with GeneratorDrivenPropertyChecks {
+  
+  // Your tests
+  
+}
+```
+
+---
+
+```scala
+val evenInts = for (n <- Gen.choose(-1000, 1000)) yield 2 * n
+```
+
+---
+
+```scala
+"fib(n)" should "be n-th Fibbonachi number" in {
+  forAll(testCases) { (n, fibN) =>
+    fib(n) shoulbBe fibN
+  }
+}
+```
 
 ---
 

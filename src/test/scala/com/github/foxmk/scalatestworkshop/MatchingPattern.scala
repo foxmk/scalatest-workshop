@@ -1,9 +1,9 @@
 package com.github.foxmk.scalatestworkshop
 
-import org.scalatest.{FunSuite, Inside}
+import org.scalatest.{Assertions, FunSuite, Inside, Inspectors}
 import org.scalatest.Matchers._
 
-class MatchingPattern extends FunSuite with Inside {
+class MatchingPattern extends FunSuite with Inside with Assertions with Inspectors {
 
   // Sometimes you need to work with deeply nested classes:
 
@@ -35,6 +35,11 @@ class MatchingPattern extends FunSuite with Inside {
     inside(example) {
       case DeeplyNestedClass(Foo(Bar(Baz(Quux(pearl))))) => pearl.length shouldBe 7
     }
+
+    forAll(Seq("a", "b")) { n =>
+      n == "a"
+    }
+
   }
 
   test("Can even nest `inside` in `inside`") {
