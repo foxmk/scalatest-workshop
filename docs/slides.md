@@ -110,61 +110,13 @@ $ sbt test
 
 ---
 
-```scala
-class UserSpec extends FlatSpec with BeforeAndAfterAll {
-
-  // your test code
-  
-  
-  
-  
-  
-}
-```
+- Use Scala to remove duplication
+- Use built-in fixture
+- Use `BeforeAndAfter*` traits
 
 ---
 
-```scala
-class UserSpec extends FlatSpec with BeforeAndAfterAll {
-  
-  beforeEach {
-  
-    // Do that before each test
-    
-  }
-  
-}
-```
-
----
-
-```scala
-class UserSpec extends FlatSpec with BeforeAndAfterAll {
-  
-  override def beforeEach(): Unit = {
-  
-    // Do that before each test
-    
-  }
-  
-}
-```
-
----
-
-```scala
-class UserSpec extends FlatSpec with BeforeAndAfterAll {
-  
-  override def beforeEach(): Unit = {
-    super.beforeEach() // <-- Do not forget this!
-    // Do that before each test
-    
-  }
-  
-}
-```
-
----
+Loan pattern:
 
 ```scala
 def withDatabase[A](db: => DB)(code: DB => A): A = {
@@ -213,6 +165,8 @@ def withAllTheStuff[ResultT](a: => A)(b: => B)(c: => C)(code: (A, B, C) => Resul
 
 ---
 
+Context trait:
+
 ```scala
 trait TestFixture {
     
@@ -231,6 +185,26 @@ trait TestFixture {
   a.call()
   b.ask()
   c.giveMeSomething()
+}
+```
+
+---
+
+Scalatest fixture implementation:
+
+```scala
+class UserSpec extends FlatSpec {
+
+  override def withFixture(test: NoArgTest) = {
+    // Setup fixture
+    try {
+      super.withFixture(test) // Run the test
+    } finally {
+      // Do some cleanup
+    }
+  }
+  
+  // Your tests
 }
 ```
 
@@ -256,9 +230,58 @@ class UserSpec extends fixture.FlatSpec {
 
 ---
 
-> Mix in a before-and-after trait when you want an aborted suite, not a failed test, if the fixture code fails.
->
-> — [Scalatest documentation](http://www.scalatest.org/user_guide/sharing_fixtures)
+```scala
+class UserSpec extends FlatSpec with BeforeAndAfter {
+
+  before {
+    // do some stuff
+  }
+  
+  after {
+    // do some cleanup
+  }
+
+  // your test code
+  
+}
+```
+
+---
+
+```scala
+class UserSpec extends FlatSpec with BeforeAndAfterAll {
+  
+  override def beforeEach(): Unit = {
+  
+    // Do that before each test
+    
+  }
+  
+}
+```
+
+---
+
+```scala
+class UserSpec extends FlatSpec with BeforeAndAfterAll {
+  
+  override def beforeEach(): Unit = {
+    super.beforeEach() // <-- Do not forget this!
+    // Do that before each test
+    
+  }
+  
+}
+```
+
+---
+
+`BeforeAndAfter` traits family:
+- `BeforeAndAfter`
+- `BeforeAndAfterAll`
+- `BeforeAndAfterAllConfigMap`
+- `BeforeAndAfterEach`
+- `BeforeAndAfterEachTestData`
 
 ---
 ---
@@ -692,7 +715,6 @@ case class Address(city: String)
 case class User(name: String, address: Address)
 
 object MyDsl {
-
   val city = new {
     def of(user: User): String = user.address.city
   }
@@ -807,6 +829,108 @@ class GetToGuts extends FunSuite with PrivateMethodTester {
 ---
 ---
 
+## Tagging tests
+
+---
+
+```scala
+import org.scalatest.Tag
+
+object DbTest extends Tag("com.example.testing.DbTest")
+```
+
+---
+
+```scala
+class UserRepositorySpec extends FlatSpec  {
+  
+  "A User" should "be in database" taggedAs(DbTest) {
+    // Your test
+  }
+  
+}
+```
+
+---
+
+Exclude tagged tests:
+
+```text
+$ sbt testOnly * -- -l com.example.testing.DbTest
+```
+
+Include tagged tests:
+
+```text
+$ sbt testOnly * -- -n com.example.testing.DbTest
+```
+
+---
+
+- Tags are just... tags
+- There are a bunch of predefined tags: `Slow`, `CPU`, `Retryable` etc...
+
+---
+---
+
+## Sharing tests
+
+---
+
+```scala
+trait UserRepository {
+  def getUser(name: String): User
+  def saveUser(user: User): User
+}
+
+class InMemoryUserRepository extends UserRepository {
+  // Some implementation
+}
+
+class PostgresUserRepository extends UserRepository {
+  // Some implementation
+}
+```
+
+---
+
+```scala
+trait UserRepositoryBehaviour { this: FlatSpec =>
+
+  def statefulUserRepository(repository: => UserRepository) {
+
+    it should "save and get user" in {
+      val user = User()
+      repository.saveUser(user)
+      repository.getUser(user.name) shouldBe user
+    }
+    
+    // More tests...
+  }
+}
+```
+
+note: talk about self-type annotations
+
+---
+
+```scala
+class InMemoryUserRepositorySpec extends FlatSpec with UserRepositoryBehaviour {
+
+  "InMemoryUserRepository" should behave like statefulUserRepository(new InMemoryUserRepository())
+}
+```
+
+```scala
+class PostgresUserRepositorySpec extends FlatSpec with UserRepositoryBehaviour {
+
+  "PostgresUserRepository" should behave like statefulUserRepository(new PostgresUserRepository())
+}
+```
+
+---
+---
+
 ## Lesson
 
 Be brave and explore documentation!
@@ -818,6 +942,8 @@ Lots of good stuff there, it's not a Pandora's box!
 
 ## Thank you!
 
-code and slides:
+Code and slides:
 
-![QR](qrcode.svg "link to code")
+![code and slides link](qrcode.svg)
+
+[https://github.com/foxmk/scalatest-workshop](https://github.com/foxmk/scalatest-workshop)
