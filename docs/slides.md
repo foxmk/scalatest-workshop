@@ -1,11 +1,20 @@
-## `scalatest`
+## A Bag of Scalatest Goodies
 Artem Artemyev
 
 [github.com/foxmk](http://github.com/foxmk)
 
 ---
 
+Code and slides:
+
+![code and slides link](qrcode.svg)
+
+[https://github.com/foxmk/scalatest-workshop](https://github.com/foxmk/scalatest-workshop)
+
+---
+
 Scalatest documentation:
+
 [http://www.scalatest.org/user_guide](http://www.scalatest.org/user_guide)
 
 ---
@@ -769,3 +778,7 @@ Lots of good stuff there, it's not a Pandora's box!
 ---
 
 ## Thank you!
+
+code and slides:
+
+![QR](qrcode.svg "link to code")
