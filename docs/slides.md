@@ -931,6 +931,97 @@ class PostgresUserRepositorySpec extends FlatSpec with UserRepositoryBehaviour {
 ---
 ---
 
+## Selenium DSL
+
+---
+
+```scala
+libraryDependencies += "org.seleniumhq.selenium" % "selenium-java" % "2.35.0" % "test"
+```
+
+---
+
+```scala
+class MyPageSpec extends FlatSpec with Chrome {
+
+  // Your tests
+  
+  
+  
+  
+}
+```
+
+---
+
+```scala
+class MyPageSpec extends FlatSpec with Chrome {
+
+  "Example page" should "have example title" in {
+    go to "http://example.com"
+    pageTitle shouldBe "Example page"
+  }
+  
+}
+```
+
+---
+
+Available browsers:
+- `Chrome`
+- `Safari`
+- `InternetExplorer`
+- `Firefox`
+- `Firefox`
+
+---
+
+Navigation:
+- `go to "http://example.com"`
+- `click on "superButton"` (uses id or name)
+- `textField("login").value = "jon.snow@winterfell.com"`
+- `goBack()`
+- `goForward()`
+- `reloadPage()`
+- `add cookie ("cookie_name", "cookie_value")`
+- `capture to "screenshot_001.png"`
+- `close`
+- `quit`
+- etc.
+
+---
+
+Selectors:
+
+```scala
+click on cssSelector(".main-menu .sections .home-page")
+```
+
+- id
+- name
+- xpath
+- className
+- cssSelector
+- linkText
+- partialLinkText
+- tagName
+
+
+---
+
+Implicit timeouts:
+
+```scala
+implicitlyWait(Span(10, Seconds))
+```
+
+---
+
+More in documentation: [http://www.scalatest.org/user_guide/using_selenium](http://www.scalatest.org/user_guide/using_selenium)
+
+---
+---
+
 ## Lesson
 
 Be brave and explore documentation!
