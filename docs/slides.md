@@ -1,8 +1,10 @@
 ## A Bag of Scalatest Goodies
+
 Artem Artemyev
 
 [github.com/foxmk](http://github.com/foxmk)
 
+---
 ---
 
 Code and slides:
@@ -12,11 +14,13 @@ Code and slides:
 [https://github.com/foxmk/scalatest-workshop](https://github.com/foxmk/scalatest-workshop)
 
 ---
+---
 
 Scalatest documentation:
 
 [http://www.scalatest.org/user_guide](http://www.scalatest.org/user_guide)
 
+---
 ---
 
 ## Quick start
@@ -99,6 +103,7 @@ $ sbt test
 ...
 ```
 
+---
 ---
 
 ## Fixtures 
@@ -256,8 +261,9 @@ class UserSpec extends fixture.FlatSpec {
 > — [Scalatest documentation](http://www.scalatest.org/user_guide/sharing_fixtures)
 
 ---
+---
 
-## Assertions and Matchers
+## Assertions
 
 ---
 
@@ -327,6 +333,11 @@ See also:
 `ModifiableMessage` and `AppendedClues`
 
 ---
+---
+
+## Matchers
+
+---
 
 ```scala
 import org.scalatest.Matchers._
@@ -385,6 +396,42 @@ A lot more matchers:
 
 ---
 
+Inspectors:
+
+```scala
+class InspectorsExample extends FunSuite with Inspectors {
+
+  // Your tests
+
+}
+```
+
+---
+
+```scala
+class InspectorsExample extends FunSuite with Inspectors {
+  
+  test("collection should have at least 2 even numbers") {
+    forAtLeast(2, Seq(1, 2, 3, 4, 5, 6)) { n =>
+      n shouldBe even
+    }
+  }
+
+}
+```
+
+---
+
+- `forAll`
+- `forAtLeast`
+- `forAtMost`
+- `forBetween`
+- `forEvery`
+- `forExactly`
+
+---
+---
+
 ## Custom matchers
 
 ---
@@ -434,43 +481,8 @@ test("User should be cool") {
   user shouldBe cool
 }
 ```
- 
 
 ---
-
-Inspectors:
-
-```scala
-class InspectorsExample extends FunSuite with Inspectors {
-
-  // Your tests
-
-}
-```
-
----
-
-```scala
-class InspectorsExample extends FunSuite with Inspectors {
-  
-  test("collection should have at least 2 even numbers") {
-    forAtLeast(2, Seq(1, 2, 3, 4, 5, 6)) { n =>
-      n shouldBe even
-    }
-  }
-
-}
-```
-
----
-
-- `forAll`
-- `forAtLeast`
-- `forAtMost`
-- `forBetween`
-- `forEvery`
-- `forExactly`
-
 ---
 
 ## Property-based testing
@@ -605,6 +617,11 @@ val squares = arbitrary[Int] map (n => n * n)
 ```
 
 ---
+---
+
+## Custom generators
+
+---
 
 `org.scalacheck.Gen[A]` is a Monad:
 - you can use `map`/`flatMap`
@@ -626,10 +643,29 @@ val nonOverlappingSeqs = for {
 } yield (a, b)
 ```
 
-```scala
+---
 
+More examples:
+
+```scala
+case class Tweet(content: String)
+
+case class User(name: String, registrationDate: Calendar, tweets: Seq[Tweet])
+
+val tweets = for {
+  length   <- Gen.chooseNum(1, 146)
+  contents <- Gen.listOfN(length, Gen.alphaNumChar)
+} yield Tweet(contents.mkString(""))
+
+val users = for {
+  firstName  <- Gen.alphaStr
+  lastName   <- Gen.alphaStr
+  dateInPast <- Gen.calendar suchThat (_.before(Calendar.getInstance()))
+  tweets     <- Gen.containerOf[Seq, Tweet](tweets)
+} yield User(firstName + " " + lastName, dateInPast, tweets)
 ```
 
+---
 ---
 
 ## Creating your own DSL
@@ -707,6 +743,7 @@ implicit class StringDsl(s: String) {
 ```
 
 ---
+---
 
 ## Other goodies
 
@@ -768,6 +805,7 @@ class GetToGuts extends FunSuite with PrivateMethodTester {
 ```
 
 ---
+---
 
 ## Lesson
 
@@ -775,6 +813,7 @@ Be brave and explore documentation!
 
 Lots of good stuff there, it's not a Pandora's box!
 
+---
 ---
 
 ## Thank you!
