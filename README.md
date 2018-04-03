@@ -9,6 +9,8 @@ It this talk we’ll cover some more or less advanced features of scalatest,
  - Fixtures
  - Assertions and matchers
  - Property checks
- - Selenium DSL (?)
  - Custom DSL
  - Other goodies
+ - Tagging tests
+ - Sharing tests
+ - Selenium DSL

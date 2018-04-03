@@ -1,6 +1,6 @@
 package com.github.foxmk.scalatestworkshop
 
-import org.scalatest.{Assertions, FunSuite, Inside, Inspectors}
+import org.scalatest.{Assertions, FunSuite, Inside}
 import org.scalatest.Matchers._
 
 class MatchingDeeplyNestedClass extends FunSuite with Inside with Assertions {
