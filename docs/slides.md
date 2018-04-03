@@ -425,11 +425,17 @@ Inspectors:
 class InspectorsExample extends FunSuite with Inspectors {
 
   // Your tests
+  
+  
+  
+  
 
 }
 ```
 
 ---
+
+Inspectors:
 
 ```scala
 class InspectorsExample extends FunSuite with Inspectors {
