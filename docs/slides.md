@@ -1,5 +1,7 @@
 ## A Bag of Scalatest Goodies
 
+![sn_logo](logo-springernature.svg)
+
 Artem Artemyev
 
 [github.com/foxmk](http://github.com/foxmk)
@@ -30,7 +32,7 @@ Scalatest documentation:
 ```scala
 // build.sbt
 
-libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.5" % "test" 
+libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.5" % "test"
 ```
 
 ---
@@ -55,23 +57,23 @@ class UserSpec extends FlatSpec {
 
   "A User" should "be of age 20" in {
     // your test code
-  
+
   }
 
 }
-``` 
+```
 
 ---
 
 ```scala
 // UserSpec.scala
 class UserSpec extends FunSuite {
-  
+
   test("User should be of age 20") {
     // your test code
-  
+
   }
-  
+
 }
 ```
 
@@ -80,12 +82,12 @@ class UserSpec extends FunSuite {
 ```scala
 // UserSpec.scala
 class UserSpec extends FlatSpec {
-  
+
   "A User" should "be of age 20" in {
     val user = User("John")
-    assert(user.age == 20) 
+    assert(user.age == 20)
   }
-  
+
 }
 ```
 
@@ -106,7 +108,7 @@ $ sbt test
 ---
 ---
 
-## Fixtures 
+## Fixtures
 
 ---
 
@@ -136,7 +138,7 @@ def withDatabase[A](db: => DB)(code: DB => A): A = {
 class UserSpec extends FlatSpec {
 
   // fixture code
-  
+
   "A User" should "be cool" in withDatabase { db =>
     val user = db.getUser()
     user shouldBe cool
@@ -169,12 +171,12 @@ Context trait:
 
 ```scala
 trait TestFixture {
-    
+
   // Initialize all the stuff
   val a = new A()
   val b = new B()
   val c = new C()
-    
+
 }
 ```
 
@@ -203,7 +205,7 @@ class UserSpec extends FlatSpec {
       // Do some cleanup
     }
   }
-  
+
   // Your tests
 }
 ```
@@ -214,7 +216,7 @@ class UserSpec extends FlatSpec {
 class UserSpec extends fixture.FlatSpec {
 
   case class TestFixture(a: A, b: B)
-  
+
   def withFixture(test: OneArgTest) = {
     val f = TestFixture(new A(), new B())
     try {
@@ -236,13 +238,13 @@ class UserSpec extends FlatSpec with BeforeAndAfter {
   before {
     // do some stuff
   }
-  
+
   after {
     // do some cleanup
   }
 
   // your test code
-  
+
 }
 ```
 
@@ -250,13 +252,13 @@ class UserSpec extends FlatSpec with BeforeAndAfter {
 
 ```scala
 class UserSpec extends FlatSpec with BeforeAndAfterAll {
-  
+
   override def beforeEach(): Unit = {
-  
+
     // Do that before each test
-    
+
   }
-  
+
 }
 ```
 
@@ -264,13 +266,13 @@ class UserSpec extends FlatSpec with BeforeAndAfterAll {
 
 ```scala
 class UserSpec extends FlatSpec with BeforeAndAfterAll {
-  
+
   override def beforeEach(): Unit = {
     super.beforeEach() // <-- Do not forget this!
     // Do that before each test
-    
+
   }
-  
+
 }
 ```
 
@@ -415,7 +417,7 @@ inside(pearlInAShell) {
 ---
 
 A lot more matchers:
-[http://www.scalatest.org/user_guide/using_matchers](http://www.scalatest.org/user_guide/using_matchers) 
+[http://www.scalatest.org/user_guide/using_matchers](http://www.scalatest.org/user_guide/using_matchers)
 
 ---
 
@@ -425,10 +427,10 @@ Inspectors:
 class InspectorsExample extends FunSuite with Inspectors {
 
   // Your tests
-  
-  
-  
-  
+
+
+
+
 
 }
 ```
@@ -439,7 +441,7 @@ Inspectors:
 
 ```scala
 class InspectorsExample extends FunSuite with Inspectors {
-  
+
   test("collection should have at least 2 even numbers") {
     forAtLeast(2, Seq(1, 2, 3, 4, 5, 6)) { n =>
       n shouldBe even
@@ -468,8 +470,8 @@ class InspectorsExample extends FunSuite with Inspectors {
 ```scala
 case class Address(street: String, house: String)
 
-case class User(name: String, 
-                address: Address, 
+case class User(name: String,
+                address: Address,
                 isCool: Boolean)
 ```
 
@@ -500,7 +502,7 @@ test("User should live in Winterfell") {
 ```scala
 val cool: BeMatcher[User] = { user =>
   MatchResult(
-    user.isCool, 
+    user.isCool,
     s"User is not cool, nope :(", s"Indeed, user is cool"
   )
 }
@@ -574,8 +576,8 @@ val even = new BeMatcher[Int] {
 ---
 
 ```scala
-trait PropertyChecks 
-  extends TableDrivenPropertyChecks 
+trait PropertyChecks
+  extends TableDrivenPropertyChecks
   with GeneratorDrivenPropertyChecks
 ```
 
@@ -585,9 +587,9 @@ Table-driven tests:
 
 ```scala
 class Fibbonachi extends FlatSpec with TableDrivenPropertyChecks {
-  
+
   // Your tests
-  
+
 }
 ```
 
@@ -621,9 +623,9 @@ Generator-driven tests:
 
 ```scala
 class IStillDoNotKnowMath extends FlatSpec with GeneratorDrivenPropertyChecks {
-  
+
   // Your tests
-  
+
 }
 ```
 
@@ -739,7 +741,7 @@ city of user shouldBe "Berlin"
 import scala.language.postfixOps
 
 implicit class IntDsl(i: Int) {
-  def squared: Int = i * i 
+  def squared: Int = i * i
 }
 
 (2 squared) shouldBe 4 // Mind the parentheses
@@ -764,7 +766,7 @@ implicit def toIntDsl(i: Int) = new IntDsl(i)
 
 ```scala
 implicit class StringDsl(s: String) {
-  def without(c: String): String = s.replaceAll(c, "") 
+  def without(c: String): String = s.replaceAll(c, "")
 }
 
 "Foo" without "F" shouldBe "oo"
@@ -789,7 +791,7 @@ import org.scalatest.PartialFunctionValues._
 ---
 
 ```scala
-None.value shouldBe "foo" // Throws TestFailedException with nice message 
+None.value shouldBe "foo" // Throws TestFailedException with nice message
 ```
 
 equivalent to:
@@ -849,11 +851,11 @@ object DbTest extends Tag("com.example.testing.DbTest")
 
 ```scala
 class UserRepositorySpec extends FlatSpec  {
-  
+
   "A User" should "be in database" taggedAs(DbTest) {
     // Your test
   }
-  
+
 }
 ```
 
@@ -910,7 +912,7 @@ trait UserRepositoryBehaviour { this: FlatSpec =>
       repository.saveUser(user)
       repository.getUser(user.name) shouldBe user
     }
-    
+
     // More tests...
   }
 }
@@ -951,10 +953,10 @@ libraryDependencies += "org.seleniumhq.selenium" % "selenium-java" % "2.35.0" % 
 class MyPageSpec extends FlatSpec with Chrome {
 
   // Your tests
-  
-  
-  
-  
+
+
+
+
 }
 ```
 
@@ -967,7 +969,7 @@ class MyPageSpec extends FlatSpec with Chrome {
     go to "http://example.com"
     pageTitle shouldBe "Example page"
   }
-  
+
 }
 ```
 
@@ -1044,3 +1046,27 @@ Code and slides:
 ![code and slides link](qrcode.svg)
 
 [https://github.com/foxmk/scalatest-workshop](https://github.com/foxmk/scalatest-workshop)
+
+---
+---
+
+We are hiring!
+
+![sn_logo](logo-springernature.svg)
+
+![hiring](hiring.svg)
+
+[https://group.springernature.com/gp/group/careers/technology](https://group.springernature.com/gp/group/careers/technology)
+
+---
+---
+
+SN Hack Day
+
+### Analitycs and Metrics to Measure<br> the Impact of Science
+
+26—27 April 2018, 1.5 days<br>@SpringerNature<br>Heidelberger Platz 3
+
+![hackaton](hackaton.svg)
+
+[https://www.springernature.com/gp/researchers/campaigns/sn-hack-day-berlin](https://www.springernature.com/gp/researchers/campaigns/sn-hack-day-berlin)
